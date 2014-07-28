@@ -12,9 +12,18 @@ if Puppet::PUPPETVERSION.to_f >= 3.2
         def scan_directory directory
 
           parser = Puppet::Pops::Parser::Parser.new
-          Dir.glob("#{directory}/*/manifests/**/*.pp").map do |filename|
-            scan_manifest File.read(filename), parser, filename
-          end.compact.flatten
+
+          # include modules by there name_schema 
+          if SETTINGS.puppet_include_modules
+            Dir.glob("#{directory}/#{SETTINGS.puppet_include_modules}/manifests/**/*.pp").map do |filename|
+              scan_manifest File.read(filename), parser, filename
+            end.compact.flatten
+          else
+            Dir.glob("#{directory}/*/manifests/**/*.pp").map do |filename|
+              scan_manifest File.read(filename), parser, filename
+            end.compact.flatten
+          end
+
         end
 
         def scan_manifest manifest, parser, filename = ''
